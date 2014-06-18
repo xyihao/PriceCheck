@@ -1,0 +1,25 @@
+import pickle
+from django.http import HttpResponse
+
+from Modules.settings import TEST_DB,QUERY_TABLE
+
+
+def getlist():
+	pass
+
+def newQuery():
+	pass
+
+def delQuery(key):
+	pass
+
+def updateQuery(key,parameters):
+	pass
+
+
+
+
+def hello(request):
+	return HttpResponse("Hello world")
+
+

@@ -1,0 +1,47 @@
+
+<html>
+<head>
+<title>Add New Query</title>
+</head>
+
+<body>
+    <form action="/newquery/" method="post">
+	<table>
+	<tr>
+	    <td>User Name: </td>
+	    <td><input type="text" name="user" value="{{user}}"></td>
+	</tr>
+	<tr>
+	    <td>Product Key:</td>
+	    <td><input type="text" name="key" value="{{key}}"></td>
+	</tr>
+	<tr>
+	    <td>Date selection:</td>
+	    <td>
+	    <select name="date_period">
+	    <option value="ALL" selected="selected">All</option>
+	    <option value="P1W">Past 7 days</option>
+	    <option value="P1M">Past 30 days</option>
+	    <option value="P3M">Past 90 days</option>
+	    <option value="P6M">Past 180 days</option>
+	    <option value="P1Y">Past 365 days</option>
+	    <option value="CTM">Customized range</option>
+	    </select>
+	    </td>
+	    <td>Start Date:</td>
+	    <td><input type="date" name="startdate" value="{{startdate}}"></td>
+	    <td>End Date:</td>
+	    <td><input type="date" name="enddate" value="{{enddate}}"></td>
+	</tr>
+	<tr>
+	    <td>Unit:</td>
+	    <td><input type="text" name="unit" value="{{unit}}"></td>
+	</tr>
+	<tr>
+	    <td></td>
+	    <td><input type="submit" name="submit"></td>
+	</tr>
+    </form>
+</body>
+
+</html>

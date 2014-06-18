@@ -1,0 +1,13 @@
+from django.db import models
+
+
+class DataQueries(models.Model):
+	id=models.IntegerField(primary_key=True)
+	user=models.CharField(max_length=20,blank=True)
+	key=models.CharField(max_length=100,blank=True)
+	object=models.CharField(max_length=500,blank=True)
+	last_update=models.DateTimeField(blank=True,null=True)
+	class Meta:
+		managed=False
+		db_table='data_queries'
+

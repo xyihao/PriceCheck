@@ -1,0 +1,34 @@
+
+<HTML>
+<HEAD>
+    <TITLE>Data From {{obj.key}}</TITLE>
+    <TABLE>
+	<TR><TH colspan=3>Data From {{obj.key}}</TH></TR>
+	<TR>
+	    {% if obj.startdate %}
+		<TD>from:{{obj.startdate}}</TD>
+	    {% endif%}
+	    {% if obj.enddate %}
+		<TD>to:{{obj.enddate}}</TD>
+	    {% endif%}
+	    <TD>by:{{obj.unit}}</TD>
+	</TR>
+    </TABLE>
+
+</HEAD>
+
+<BODY>
+    <TABLE>
+	<TR>
+	    <TH>Date</TH>
+	    <TH>Price</TH>
+	</TR>
+	{% for row in data %}
+	<TR>
+	    <TD>{{row.0}}</TD>
+	    <TD>{{row.1}}</TD>
+	</TR>
+	{% endfor %}
+    </TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,26 @@
+from django.db import models
+from Modules.settings import SITE_CHOICES
+from Modules.common import QUERY_CHOICES
+# Create your models here.
+
+class Sources(models.Model):
+	_QUERY_TYPE=(
+			('RP','Search Result Page'),
+			('PP','Product Page'),
+			)
+	PERIOD_CHOICES=(
+			('HH','Every hour'),
+			('DY','Every day'),
+			('WK','Every week'),
+			('MH','Every month'),
+			)
+	name=models.CharField(max_length=30)
+	url=models.URLField()
+	qtype=models.CharField(max_length=10,choices=QUERY_CHOICES,verbose_name='query type')
+	site=models.CharField(max_length=20,choices=SITE_CHOICES)
+	#period_type & period_num combination will show 1 day, 2 week,etc
+	period_type=models.CharField(max_length=10,choices=PERIOD_CHOICES,verbose_name='interval type')
+	period_num=models.IntegerField(verbose_name='interval number')
+	last_update=models.DateTimeField()
+
+	

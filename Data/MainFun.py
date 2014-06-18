@@ -1,0 +1,70 @@
+
+from Modules.Scraper.YHD import YHD_Scraper
+from Modules.settings import CONFIG_DB,SOURCE_TABLE
+from Modules.output import OutputResult
+import threading
+import sqlite3
+
+#Check the source table to see which sources needs update
+#return a list contains all the sources to be update by site
+def CheckSource():
+	conn=sqlite3.connect(CONFIG_DB)
+	conn.row_factory=sqlite3.Row
+	#TODO:add updatetime check to select non-updated sources
+	sql='select * from {table}'.format(table=SOURCE_TABLE)
+	cursor=conn.execute(sql)
+	source=[]
+	for row in cursor:
+		#TODO:add site into the tuple for different site scraper
+		source.append((row['url'],row['qtype'],row['id']))
+	return source
+	pass
+
+#OBJECTIVE:wrapper of scraping function for thread processing
+class Scraper(threading.Thread):
+    def __init__(self,name,interval):
+	threading.Thread.__init__(self)
+	self._name=name
+	self._interval=interval
+
+    def run(self):
+		print "starting " + self._name
+		while IsReady:
+			sources=CheckSource()
+			CallScraper(sources)
+			waitTime=GetWaitTime()
+			time.sleep()
+		print "exiting [%s] "%(self._name)
+
+#Call different scraper according to the source's site attributes
+def CallScraper(sources):
+	#Check the source table to get all the available source
+	if sources is None or len(sources)==0:
+		return False
+	for source in sources:
+		items=YHD_Scraper(source[0],source[1])
+		#add the sourceid into the result
+		for item in items:
+			item.append(source[2])
+		OutputResult(items,source[2])
+	return True
+
+#OBJECTIVE:block the thread until the sign is True
+#INPUT: sign is boolean
+#OUTPUT: nothing
+def WaitForReady(sign):
+	pass
+
+#OBJECTIVE:set the sign to be false, set the waiting time, and call the waiting function
+#INPUT: sign is boolean
+#OUTPUT: nothing
+def SetTimer(sign):
+	pass
+
+def Main():
+	ready=True
+	while True:
+		WaitForReady(ready)
+		CallScraper()
+		SetTimer(ready)
+

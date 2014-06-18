@@ -1,0 +1,125 @@
+from Modules.Scraper.YHD import YHD_Scraper
+from Modules.settings import CONFIG_DB,SOURCE_TABLE,TEST_DB
+from Modules.output import OutputResult
+from datetime import datetime,timedelta
+import threading
+import sqlite3
+import sys
+
+##Global variables
+IsReady=True
+IsFinished=False
+ScrapeLock=threading.Condition()
+#Check the source table to see which sources needs update
+#return a list contains all the sources to be update by site
+def CheckSource():
+	conn=sqlite3.connect(TEST_DB)
+	conn.row_factory=sqlite3.Row
+	#TODO:add updatetime check to select non-updated sources
+	sql='select * from {table}'.format(table=SOURCE_TABLE)
+	cursor=conn.execute(sql)
+	source=[]
+	for row in cursor:
+		#TODO:add site into the tuple for different site scraper
+		source.append((row['url'],row['qtype'],row['id'],row['period_type'],row['period_num']))
+	return source
+	pass
+
+#Call different scraper according to the source's site attributes
+def CallScraper(sources):
+	#Check the source table to get all the available source
+	#sources=CheckSource()
+	if sources is None or len(sources)==0:
+		return False
+	for source in sources:
+		items=YHD_Scraper(source[0],source[1])
+		#add the sourceid into the result
+		for item in items:
+			item.append(source[2])
+		OutputResult(items,source[2],source[3],source[4])
+	return True
+
+
+
+def GetSources():
+	conn=sqlite3.connect(TEST_DB)
+	conn.row_factory=sqlite3.Row
+	#TODO:add updatetime check to select non-updated sources
+	sql='select * from {table} where next_update<datetime("now","localtime")'.format(table=SOURCE_TABLE)
+	cursor=conn.execute(sql)
+	sources=[]
+	for row in cursor:
+		#TODO:add site into the tuple for different site scraper
+		sources.append((row['url'],row['qtype'],row['id'],row['period_type'],row['period_num']))
+	conn.close()
+	return sources
+
+def GetWaitTime():
+	conn=sqlite3.connect(TEST_DB)
+	conn.row_factory=sqlite3.Row
+	sql='select next_update from {table} order by next_update asc limit 1'.format(table=SOURCE_TABLE)
+	cursor=conn.execute(sql)
+	tm=cursor.fetchone()[0]
+	conn.close()
+	next_update=datetime.strptime(tm,"%Y-%m-%d %H:%M:%S")
+	wait_time=next_update-datetime.now()
+	return wait_time.total_seconds()
+
+
+class ScraperThread(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self)
+
+	def run(self):
+		print '[ScraperThread] Starting'
+		while IsReady:
+			sources=GetSources()
+			print '[ScraperThread] {%d} sources to update now'%(len(sources))
+			CallScraper(sources)
+			wait_time=GetWaitTime()
+			next_time=datetime.now()+timedelta(seconds=wait_time)
+			if wait_time>0:
+				print '[ScraperThread] All sources updated, the next update will be %s (%d seconds later)'%(next_time.isoformat(),wait_time)
+				ScrapeLock.acquire()
+				ScrapeLock.wait(wait_time+30)
+				ScrapeLock.release()
+		print '[ScraperThread] Existing'
+
+
+def cancel_fun():
+	global IsReady
+	IsReady=False
+	ScrapeLock.acquire()
+	ScrapeLock.notify()
+	ScrapeLock.release()
+	
+def restart_fun():
+	global IsReady
+	IsReady=True
+	updateThread=ScraperThread()
+	updateThread.start()
+			
+
+def Main():
+	#Declaration of global variable
+	global IsFinished
+	IsFinished=False
+	updateThread=ScraperThread()
+	updateThread.start()
+	while not IsFinished:
+		print '[main] Start listening, please input your command'
+		command=sys.stdin.readline()
+		if command[:-1]=='cancel':
+			cancel_fun()
+			continue
+		elif command[:-1]=='restart':
+			restart_fun()
+			continue
+		elif command[:-1]=='exit':
+			cancel_fun()
+			IsFinished=True
+			continue
+		print '[main] The command "{command}" is unknown'.format(command=command[:-1])
+	#TODO:the [Main] exiting is displayed before [ScraperThread] existing, need to find why
+	updateThread.join()
+	print '[main] Exiting'

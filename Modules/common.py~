@@ -1,0 +1,12 @@
+#This stores all the constant value
+
+QUERY_SEARCH='RP'
+QUERY_PRODUCT='PP'
+
+QUERY_CHOICES=(
+		(QUERY_SEARCH,'Search Result Page'),
+		(QUERY_PRODUCT,'Product Page'),
+		)
+
+
+

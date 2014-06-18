@@ -1,0 +1,25 @@
+#This module stores the html downloading functions
+
+from urllib2 import urlopen,URLError,Request
+from Modules.settings import USER_AGENT
+def GetHttpObject(url):
+	try:
+		headers={'User-Agent':USER_AGENT}
+		req=Request(url,headers=headers)
+		response=urlopen(req)
+		response=response.read()
+		response.close()
+	except URLError as e:
+		if hasattr(e,'reason'):
+			print 'Failed to reach a server.'
+			print 'Reason:',e.reason
+		elif hasattr(e,'code'):
+			print 'Server failed to fulfill the request'
+			print 'Code:',e.code
+		raise e
+	except Exception as e:
+		print 'error in GetHttpObject'
+		raise e
+	else:
+		return response
+

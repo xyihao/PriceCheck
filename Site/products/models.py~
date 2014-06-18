@@ -1,0 +1,26 @@
+from django.db import models
+from Modules.settings import SITE_CHOICES
+# Create your models here.
+
+class Products(models.Model):
+	uid=models.CharField(max_length=30,null=True,blank=True) #a site specific uid, it is used to identify SKU in the same site
+	name=models.CharField(max_length=100)
+	rsp=models.FloatField(verbose_name='Market Price')
+	price=models.FloatField(verbose_name='Retailer Price')
+	promotion=models.CharField(max_length=50,null=True,blank=True)
+	site=models.CharField(max_length=20,choices=SITE_CHOICES)
+	store=models.CharField(max_length=20)
+	sourceid=models.IntegerField(null=True,blank=True)
+	datetime=models.DateTimeField(verbose_name='Update Time')
+	#the following fields are for the sake of simplified date query
+	#the alternative is to store only datetime and do the calculation on the time
+	#keep it null and black for easy remove in the future
+	year=models.IntegerField(null=True,blank=True)
+	quarter=models.IntegerField(null=True,blank=True)
+	month=models.IntegerField(null=True,blank=True)
+	week=models.IntegerField(null=True,blank=True)
+	day=models.IntegerField(null=True,blank=True)
+	hour=models.IntegerField(null=True,blank=True)
+	memo1=models.TextField(null=True,blank=True)
+
+
